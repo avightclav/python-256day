@@ -17,8 +17,9 @@ import com.bmuschko.gradle.docker.tasks.log.*
 task buildDockerfile(type: Dockerfile) {
 	destFile = project.file("Dockerfile")
 	from('python:3')
+    exposePort(8080)
 	copyFile('src/my_script.py', 'my_script.py')
-	instruction('CMD python /my_script.py')
+	instruction('CMD python -u /my_script.py')
 }
 
 // Use task types
@@ -30,7 +31,7 @@ task buildMyAppImage(type: DockerBuildImage, dependsOn: buildDockerfile) {
 task createMyAppContainer(type: DockerCreateContainer) {
     dependsOn buildMyAppImage
     targetImageId buildMyAppImage.getImageId()
-    hostConfig.portBindings = ['80:80']
+    hostConfig.portBindings = ['80:8080']
     hostConfig.autoRemove = true
 }
 
